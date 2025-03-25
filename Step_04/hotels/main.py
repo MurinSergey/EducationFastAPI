@@ -6,8 +6,8 @@ app = FastAPI()
 
 # Тестовый список отелей
 hotels = [
-    {"id": 1, "title": "Moscow"},
-    {"id": 2, "title": "Khabarovsk"}
+    {"id": 1, "title": "Moscow", "name": "msc"},
+    {"id": 2, "title": "Khabarovsk", "name": "khv"}
 ]
 
 # Стартовая страница
@@ -43,10 +43,46 @@ def delete_hotel(
 # Создание нового отеля
 @app.post("/hotels")
 def create_hotel(
-        hotel_title: str = Body(description="Название отеля", embed=True)
+        hotel_title: str = Body(description="Название отеля", embed=True),
+        hotel_name: str = Body(description="Код отеля", embed=True)
     ):
+
     global hotels
-    hotels.append({"id": hotels[-1]["id"] + 1, "title": hotel_title})
+    hotels.append({"id": hotels[-1]["id"] + 1, "title": hotel_title, "name": hotel_name})
+
+    return {"status": "OK"}
+
+# Изменение всего объекта
+@app.put("/hotels/{hotel_id}")
+def replace_hotel(
+        hotel_id: int,
+        hotel_title: str = Body(description="Название отеля", embed=True),
+        hotel_name: str = Body(description="Код отеля", embed=True)
+    ):
+
+    for hotel in hotels:
+        if hotel["id"] == hotel_id:
+            hotel["title"] = hotel_title
+            hotel["name"] = hotel_name
+            break
+
+    return {"status": "OK"}
+
+# Изменение части объекта
+@app.patch("/hotels/{hotel_id}")
+def replace_hotel(
+        hotel_id: int,
+        hotel_title: str | None = Body(default=None, description="Название отеля", embed=True),
+        hotel_name: str | None = Body(default=None, description="Код отеля", embed=True)
+    ):
+    for hotel in hotels:
+        if hotel["id"] == hotel_id:
+            if hotel_title:
+                hotel["title"] = hotel_title
+            if hotel_name:
+                hotel["name"] = hotel_name
+            break
+
     return {"status": "OK"}
 
 if __name__ == "__main__":

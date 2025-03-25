@@ -16,7 +16,7 @@ def start():
     return hotels
 
 # Получаем список всех отелей
-@app.get("/hotels")
+@app.get("/hotels", summary="Список всех отелей")
 def get_hotels(
         id: int | None = Query(description="Номер отеля", default=None),
         title: str | None = Query(description="Название отеля", default=None)
@@ -31,7 +31,7 @@ def get_hotels(
     return _hotels
 
 # Удаление выбранного отеля
-@app.delete("/hotels/{hotel_id}")
+@app.delete("/hotels/{hotel_id}", summary="Удаление отеля")
 def delete_hotel(
         hotel_id: int,
         hotel_titel: str | None = Query(description="Название отеля", default=None) # В метод delete можно добавлять параметры фильтрации
@@ -41,7 +41,7 @@ def delete_hotel(
     return {"status": "OK"}
 
 # Создание нового отеля
-@app.post("/hotels")
+@app.post("/hotels", summary="Создание нового отеля")
 def create_hotel(
         hotel_title: str = Body(description="Название отеля", embed=True),
         hotel_name: str = Body(description="Код отеля", embed=True)
@@ -53,7 +53,7 @@ def create_hotel(
     return {"status": "OK"}
 
 # Изменение всего объекта
-@app.put("/hotels/{hotel_id}")
+@app.put("/hotels/{hotel_id}", summary="Полное обновление данных")
 def replace_hotel(
         hotel_id: int,
         hotel_title: str = Body(description="Название отеля", embed=True),
@@ -69,8 +69,8 @@ def replace_hotel(
     return {"status": "OK"}
 
 # Изменение части объекта
-@app.patch("/hotels/{hotel_id}")
-def replace_hotel(
+@app.patch("/hotels/{hotel_id}", summary="Частичное обновление данных")
+def update_hotel(
         hotel_id: int,
         hotel_title: str | None = Body(default=None, description="Название отеля", embed=True),
         hotel_name: str | None = Body(default=None, description="Код отеля", embed=True)

@@ -30,6 +30,15 @@ def get_hotels(
         _hotels.append(hotel)
     return _hotels
 
+# Удаление выбранного отеля
+@app.delete("/hotels/{hotel_id}")
+def delete_hotel(
+        hotel_id: int,
+        hotel_titel: str | None = Query(description="Название отеля", default=None) # В метод delete можно добавлять параметры фильтрации
+    ):
+    global hotels
+    hotels = [hotel for hotel in hotels if hotel["id"] != hotel_id]
+    return {"status": "OK"}
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True, host="127.0.0.1", port=8001)

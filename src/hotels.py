@@ -20,8 +20,8 @@ hotels = [
 def get_hotels(
     id: int | None = Query(description="Номер отеля", default=None),
     title: str | None = Query(description="Название отеля", default=None),
-    page: int = Query(description="Номер страницы", default=1),
-    per_page: int = Query(description="Количество элементов на странице", default=3)
+    page: int | None = Query(description="Номер страницы", default=None, ge=1),
+    per_page: int | None = Query(description="Количество элементов на странице", default=None, ge=1, le=30)
 ):
     _hotels = []
     for hotel in hotels:
@@ -30,7 +30,9 @@ def get_hotels(
         if title and hotel["title"] != title:
             continue
         _hotels.append(hotel)
-    return _hotels[(page - 1) * per_page : page * per_page]
+    if page and per_page:
+        return _hotels[(page - 1) * per_page : page * per_page]
+    return _hotels
 
 # Удаление выбранного отеля
 @router.delete("/{hotel_id}", summary="Удаление отеля")

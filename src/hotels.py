@@ -1,4 +1,4 @@
-from fastapi import Query, APIRouter
+from fastapi import Body, Query, APIRouter
 
 from schemas.hotel import Hotel, HotelPATCH
 
@@ -45,14 +45,29 @@ def delete_hotel(
 # Создание нового отеля
 @router.post("", summary="Создание нового отеля")
 def create_hotel(
-        hotel_data: Hotel
+        hotel_data: Hotel = Body(openapi_examples={
+            "1": {
+                "summary": "Создание отеля London",
+                "value": {
+                    "title": "London",
+                    "name": "lnd"
+                }
+            },
+            "2": {
+                "summary": "Создание отеля Paris",
+                "value": {
+                    "title": "Paris",
+                    "name": "prs"
+                }
+            }
+        })
     ):
 
     global hotels
     hotels.append({
         "id": hotels[-1]["id"] + 1, 
-        "title": hotel_data.hotel_title, 
-        "name": hotel_data.hotel_name
+        "title": hotel_data.title, 
+        "name": hotel_data.name
         })
 
     return {"status": "OK"}
@@ -66,8 +81,8 @@ def replace_hotel(
 
     for hotel in hotels:
         if hotel["id"] == hotel_id:
-            hotel["title"] = hotel_data.hotel_title
-            hotel["name"] = hotel_data.hotel_name
+            hotel["title"] = hotel_data.title
+            hotel["name"] = hotel_data.name
             break
 
     return {"status": "OK"}
@@ -80,10 +95,10 @@ def update_hotel(
     ):
     for hotel in hotels:
         if hotel["id"] == hotel_id:
-            if hotel_data.hotel_title:
-                hotel["title"] = hotel_data.hotel_title
-            if hotel_data.hotel_name:
-                hotel["name"] = hotel_data.hotel_name
+            if hotel_data.title:
+                hotel["title"] = hotel_data.title
+            if hotel_data.name:
+                hotel["name"] = hotel_data.name
             break
 
     return {"status": "OK"}

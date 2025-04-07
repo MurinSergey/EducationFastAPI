@@ -1,3 +1,5 @@
+import uvicorn
+from fastapi import Body, FastAPI, Query
 import sys
 from pathlib import Path
 
@@ -8,10 +10,10 @@ from pathlib import Path
 # Это позволяет импортировать модули из папки "src", которая находится в корневой директории проекта
 sys.path.append(str(Path(__file__).parent.parent))
 
-from fastapi import Body, FastAPI, Query
-import uvicorn
 from src.api.hotels import router as hotels_router
 from src.config import settings
+
+from src.database import *
 
 # Создаем приложение FastAPI
 app = FastAPI()
@@ -21,5 +23,4 @@ app.include_router(hotels_router)
 
 # Запускаем приложение при выполнении скрипта main.py
 if __name__ == "__main__":
-    print(settings.DB_NAME)
     uvicorn.run("main:app", reload=True, host="127.0.0.1", port=8000)

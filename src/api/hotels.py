@@ -1,7 +1,8 @@
 from fastapi import Body, Query, APIRouter
-from dependencies import PaginationDep
+from src.api.dependencies import PaginationDep
 from schemas.hotel import Hotel, HotelPATCH
 
+# Создаем роутер
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
 # Тестовый список отелей
@@ -30,7 +31,7 @@ def get_hotels(
             continue
         _hotels.append(hotel)
     if pagination.page and pagination.per_page:
-        return _hotels[(pagination.page - 1) * pagination.per_page : pagination.page * pagination.per_page]
+        return _hotels[(pagination.page - 1) * pagination.per_page: pagination.page * pagination.per_page]
     return _hotels
 
 # Удаление выбранного отеля

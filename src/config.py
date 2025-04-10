@@ -16,7 +16,7 @@ class Settings(BaseSettings):
         return f'postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}'
 
     # Настройки для загрузки настроек из файла .env и его кодировкой
-    model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
+    model_config = SettingsConfigDict(env_file='.env')
 
 # Создаем объект настроек и загружаем их из файла .env
 settings = Settings()

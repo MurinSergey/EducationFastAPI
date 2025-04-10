@@ -1,3 +1,4 @@
+import asyncio
 import uvicorn
 from fastapi import Body, FastAPI, Query
 import sys
@@ -23,4 +24,5 @@ app.include_router(hotels_router)
 
 # Запускаем приложение при выполнении скрипта main.py
 if __name__ == "__main__":
+    #asyncio.run(test_engine())
     uvicorn.run("main:app", reload=True, host="127.0.0.1", port=8000)

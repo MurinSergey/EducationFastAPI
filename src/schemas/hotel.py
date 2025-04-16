@@ -7,10 +7,10 @@ class Hotel(BaseModel):
 
     Атрибуты:
     title (str): Название отеля.
-    name (str): Имя отеля.
+    location (str): Имя отеля.
     """
-    title: str
-    name: str
+    title: str = Field(description="Название отеля")
+    location: str = Field(description="Адрес отеля")
 
 class HotelPATCH(BaseModel):
     """
@@ -18,7 +18,7 @@ class HotelPATCH(BaseModel):
 
     Атрибуты:
     title (str | None): Название отеля. Если не указано, то None.
-    name (str | None): Код отеля. Если не указано, то None.
+    location (str | None): Код отеля. Если не указано, то None.
     """
     title: str | None = Field(None, description="Название отеля")
-    name: str | None = Field(None, description="Код отеля")
+    location: str | None = Field(None, description="Адрес отеля")

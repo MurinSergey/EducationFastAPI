@@ -1,5 +1,5 @@
 from fastapi import Body, Query, APIRouter
-from sqlalchemy import insert
+from sqlalchemy import insert, select
 from src.models.hotels import HotelsOrm
 from src.api.dependencies import PaginationDep
 from src.database import async_session_maker, engine
@@ -9,33 +9,39 @@ from schemas.hotel import Hotel, HotelPATCH
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
 # Тестовый список отелей
-hotels = [
-    {"id": 1, "title": "Sochi", "name": "sochi"},
-    {"id": 2, "title": "Дубай", "name": "dubai"},
-    {"id": 3, "title": "Мальдивы", "name": "maldivi"},
-    {"id": 4, "title": "Геленджик", "name": "gelendzhik"},
-    {"id": 5, "title": "Москва", "name": "moscow"},
-    {"id": 6, "title": "Казань", "name": "kazan"},
-    {"id": 7, "title": "Санкт-Петербург", "name": "spb"},
-]
+# hotels = [
+#     {"id": 1, "title": "Sochi", "name": "sochi"},
+#     {"id": 2, "title": "Дубай", "name": "dubai"},
+#     {"id": 3, "title": "Мальдивы", "name": "maldivi"},
+#     {"id": 4, "title": "Геленджик", "name": "gelendzhik"},
+#     {"id": 5, "title": "Москва", "name": "moscow"},
+#     {"id": 6, "title": "Казань", "name": "kazan"},
+#     {"id": 7, "title": "Санкт-Петербург", "name": "spb"},
+# ]
 
 # Получаем список всех отелей
 @router.get("", summary="Список всех отелей")
-def get_hotels(
+async def get_hotels(
     pagination: PaginationDep,
     id: int | None = Query(description="Номер отеля", default=None),
     title: str | None = Query(description="Название отеля", default=None),
 ):
-    _hotels = []
-    for hotel in hotels:
-        if id and hotel["id"] != id:
-            continue
-        if title and hotel["title"] != title:
-            continue
-        _hotels.append(hotel)
-    if pagination.page and pagination.per_page:
-        return _hotels[(pagination.page - 1) * pagination.per_page: pagination.page * pagination.per_page]
-    return _hotels
+    async with async_session_maker() as session:
+        query = select(HotelsOrm)
+        result = await session.execute(query)
+        hotels = result.scalars().all()
+        print(hotels)
+        return hotels
+    # _hotels = []
+    # for hotel in hotels:
+    #     if id and hotel["id"] != id:
+    #         continue
+    #     if title and hotel["title"] != title:
+    #         continue
+    #     _hotels.append(hotel)
+    # if pagination.page and pagination.per_page:
+    #     return _hotels[(pagination.page - 1) * pagination.per_page: pagination.page * pagination.per_page]
+    # return _hotels
 
 # Удаление выбранного отеля
 @router.delete("/{hotel_id}", summary="Удаление отеля")

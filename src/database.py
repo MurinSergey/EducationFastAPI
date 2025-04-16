@@ -6,7 +6,7 @@ from src.config import settings
 
 # Подключение к базе данных
 # Использование асинхронного движка
-engine = create_async_engine(settings.DATABASE_URL)
+engine = create_async_engine(url=settings.DATABASE_URL, echo=False)
 
 # Создание асинхронного сессионного объекта для работы с базой данных
 # expire_on_commit=False означает, что объекты, созданные в рамках сессии, не будут автоматически удаляться после завершения транзакции

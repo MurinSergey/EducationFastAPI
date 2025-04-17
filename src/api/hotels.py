@@ -18,38 +18,12 @@ async def get_hotels(
 ):
     per_page = pagination.per_page or 5  # По умолчанию выводим 5 отелей на странице
     async with async_session_maker() as session:
-        return await HotelsRepository(session).get_all()
-        # query = select(HotelsOrm)
-
-        # if title:
-        #     # Используем ilike для поиска по подстроке без учета регистра
-        #     # query = query.filter(HotelsOrm.title.ilike(f"%{title}%")) 
-
-        #     # Используем func.lower для преобразования к нижнему регистру и поиск по подстроке без учета регистра
-        #     # query = query.filter(func.lower(HotelsOrm.title).like(f"%{title.lower().strip()}%"))
-
-        #     # Используем contains для поиска по подстроке без учета регистра вместо like или ilike, как более безопасный вариант
-        #     query = query.filter(func.lower(HotelsOrm.title).contains(title.lower().strip()))
-
-        # if location:
-        #     # Используем ilike для поиска по подстроке без учета регистра
-        #     # query = query.filter(HotelsOrm.location.ilike(f"%{location}%"))
-
-        #     # Используем func.lower для преобразования к нижнему регистру и поиск по подстроке без учета регистра
-        #     # query = query.filter(func.lower(HotelsOrm.location).like(f"%{location.lower().strip()}%"))
-
-        #     # Используем contains для поиска по подстроке без учета регистра вместо like или ilike, как более безопасный вариант
-        #     query = query.filter(func.lower(HotelsOrm.location).contains(location.lower().strip()))
-
-        # query = (
-        #     query
-        #     .limit(per_page)
-        #     .offset((pagination.page - 1) * per_page)
-        # )
-        # result = await session.execute(query)
-        # hotels = result.scalars().all()
-        # # print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
-        # return hotels
+        return await HotelsRepository(session).get_all(
+            title=title,
+            location=location,
+            limit=per_page,
+            offset=(pagination.page - 1) * per_page
+        )
         
 
 # Удаление выбранного отеля

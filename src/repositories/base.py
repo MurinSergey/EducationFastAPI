@@ -20,7 +20,7 @@ class BaseRepository:
         """
         self._session = session
 
-    async def get_all(self):
+    async def get_all(self, *args, **kwargs):
         """
         Получение всех записей из таблицы.
 

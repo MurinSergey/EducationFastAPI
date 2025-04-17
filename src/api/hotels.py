@@ -67,10 +67,10 @@ async def create_hotel(
 ):
 
     async with async_session_maker() as session:
-        new_data = await HotelsRepository(session).add(hotel_data.model_dump())
+        hotel = await HotelsRepository(session).add(hotel_data.model_dump())
         await session.commit()
 
-    return {"status": "OK", "new data": new_data}
+    return {"status": "OK", "data": hotel}
 
 # Изменение всего объекта
 @router.put("/{hotel_id}", summary="Полное обновление данных")

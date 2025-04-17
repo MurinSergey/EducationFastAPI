@@ -1,5 +1,5 @@
 from fastapi import Body, Query, APIRouter
-from sqlalchemy import insert, select
+from sqlalchemy import func, insert, select
 from src.models.hotels import HotelsOrm
 from src.api.dependencies import PaginationDep
 from src.database import async_session_maker, engine
@@ -20,9 +20,18 @@ async def get_hotels(
         query = select(HotelsOrm)
 
         if title:
-            query = query.filter(HotelsOrm.title.ilike(f"%{title}%"))
+            # Используем ilike для поиска по подстроке без учета регистра
+            # query = query.filter(HotelsOrm.title.ilike(f"%{title}%")) 
+
+            # Используем func.lower для преобразования к нижнему регистру и поиск по подстроке без учета регистра
+            query = query.filter(func.lower(HotelsOrm.title).like(f"%{title.lower().strip()}%"))
+
         if location:
-            query = query.filter(HotelsOrm.location.ilike(f"%{location}%"))
+            # Используем ilike для поиска по подстроке без учета регистра
+            # query = query.filter(HotelsOrm.location.ilike(f"%{location}%"))
+
+            # Используем func.lower для преобразования к нижнему регистру и поиск по подстроке без учета регистра
+            query = query.filter(func.lower(HotelsOrm.location).like(f"%{location.lower().strip()}%"))
 
         query = (
             query
@@ -52,17 +61,24 @@ def delete_hotel(
 async def create_hotel(
     hotel_data: Hotel = Body(openapi_examples={
         "1": {
-            "summary": "Создание отеля London",
+            "summary": "Создание отеля Big Ben",
             "value": {
-                "title": "Big Ban Hotel",
-                "location": "London street 1"
+                "title": "Big Ben отель",
+                "location": "Лондон, ул. Трафальгар, 1"
             }
         },
         "2": {
-            "summary": "Создание отеля Paris",
+            "summary": "Создание отеля ЛУВР",
             "value": {
-                "title": "Luvr Hotel",
-                "location": "Paris street 1"
+                "title": "Отель ЛУВР",
+                "location": "Париж, ул. Монт-Сен-Пьер, 1"
+            }
+        },
+        "3": {
+            "summary": "Создание отеля Царь",
+            "value": {
+                "title": "Царь-отель",
+                "location": "Санкт-Петербург, ул. Царя, 1"
             }
         }
     })

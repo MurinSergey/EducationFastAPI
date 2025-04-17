@@ -1,5 +1,6 @@
 from fastapi import Body, Query, APIRouter
 from sqlalchemy import func, insert, select
+from src.repositories.hotels import HotelsRepository
 from src.models.hotels import HotelsOrm
 from src.api.dependencies import PaginationDep
 from src.database import async_session_maker, engine
@@ -17,37 +18,39 @@ async def get_hotels(
 ):
     per_page = pagination.per_page or 5  # По умолчанию выводим 5 отелей на странице
     async with async_session_maker() as session:
-        query = select(HotelsOrm)
+        return await HotelsRepository(session).get_all()
+        # query = select(HotelsOrm)
 
-        if title:
-            # Используем ilike для поиска по подстроке без учета регистра
-            # query = query.filter(HotelsOrm.title.ilike(f"%{title}%")) 
+        # if title:
+        #     # Используем ilike для поиска по подстроке без учета регистра
+        #     # query = query.filter(HotelsOrm.title.ilike(f"%{title}%")) 
 
-            # Используем func.lower для преобразования к нижнему регистру и поиск по подстроке без учета регистра
-            # query = query.filter(func.lower(HotelsOrm.title).like(f"%{title.lower().strip()}%"))
+        #     # Используем func.lower для преобразования к нижнему регистру и поиск по подстроке без учета регистра
+        #     # query = query.filter(func.lower(HotelsOrm.title).like(f"%{title.lower().strip()}%"))
 
-            # Используем contains для поиска по подстроке без учета регистра вместо like или ilike, как более безопасный вариант
-            query = query.filter(func.lower(HotelsOrm.title).contains(title.lower().strip()))
+        #     # Используем contains для поиска по подстроке без учета регистра вместо like или ilike, как более безопасный вариант
+        #     query = query.filter(func.lower(HotelsOrm.title).contains(title.lower().strip()))
 
-        if location:
-            # Используем ilike для поиска по подстроке без учета регистра
-            # query = query.filter(HotelsOrm.location.ilike(f"%{location}%"))
+        # if location:
+        #     # Используем ilike для поиска по подстроке без учета регистра
+        #     # query = query.filter(HotelsOrm.location.ilike(f"%{location}%"))
 
-            # Используем func.lower для преобразования к нижнему регистру и поиск по подстроке без учета регистра
-            # query = query.filter(func.lower(HotelsOrm.location).like(f"%{location.lower().strip()}%"))
+        #     # Используем func.lower для преобразования к нижнему регистру и поиск по подстроке без учета регистра
+        #     # query = query.filter(func.lower(HotelsOrm.location).like(f"%{location.lower().strip()}%"))
 
-            # Используем contains для поиска по подстроке без учета регистра вместо like или ilike, как более безопасный вариант
-            query = query.filter(func.lower(HotelsOrm.location).contains(location.lower().strip()))
+        #     # Используем contains для поиска по подстроке без учета регистра вместо like или ilike, как более безопасный вариант
+        #     query = query.filter(func.lower(HotelsOrm.location).contains(location.lower().strip()))
 
-        query = (
-            query
-            .limit(per_page)
-            .offset((pagination.page - 1) * per_page)
-        )
-        result = await session.execute(query)
-        hotels = result.scalars().all()
-        # print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
-        return hotels
+        # query = (
+        #     query
+        #     .limit(per_page)
+        #     .offset((pagination.page - 1) * per_page)
+        # )
+        # result = await session.execute(query)
+        # hotels = result.scalars().all()
+        # # print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
+        # return hotels
+        
 
 # Удаление выбранного отеля
 @router.delete("/{hotel_id}", summary="Удаление отеля")

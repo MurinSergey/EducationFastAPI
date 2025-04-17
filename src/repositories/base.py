@@ -49,6 +49,12 @@ class BaseRepository:
     async def add(self, data):
         """
         Добавление новой записи в таблицу.
+
+        Аргументы:
+            data (dict): Данные для добавления записи.
+
+        Возвращает:
+            Any: Добавленная запись.
         """
         add_hotel_statement = insert(self._model).values(**data).returning(self._model)
         # print(add_hotel_statement.compile(bind=engine, compile_kwargs={"literal_binds": True}))

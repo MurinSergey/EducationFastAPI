@@ -8,10 +8,10 @@ class HotelsRepository(BaseRepository):
     Класс репозитория для работы с отелями.
 
     Атрибуты:
-        model (HotelsOrm): Модель отеля.
+        _model (HotelsOrm): Модель отеля.
     """
 
-    model = HotelsOrm
+    _model = HotelsOrm
 
     # Метод получения всех отелей с параметрами поиска
     async def get_all(
@@ -44,5 +44,5 @@ class HotelsRepository(BaseRepository):
         )
         result = await self._session.execute(query)
         hotels = result.scalars().all()
-        # print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
+        print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
         return hotels

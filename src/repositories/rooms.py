@@ -7,6 +7,6 @@ class RoomsRepository(BaseRepository):
     Класс репозитория для работы с комнатами.
 
     Атрибуты:
-        model (RoomsOrm): Модель комнаты.
+        _model (RoomsOrm): Модель комнаты.
     """
-    model = RoomsOrm
+    _model = RoomsOrm

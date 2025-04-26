@@ -1,4 +1,4 @@
-from fastapi import Body, Query, APIRouter
+from fastapi import Body, HTTPException, Query, APIRouter
 from src.repositories.hotels import HotelsRepository
 from src.api.dependencies import PaginationDep
 from src.database import async_session_maker 
@@ -28,11 +28,18 @@ async def get_hotels(
 async def delete_hotel(
     hotel_id: int
 ):
+    status = "OK"
+    data = None
     async with async_session_maker() as session:
-        hotel = await HotelsRepository(session).delete(id=hotel_id)
+        try:
+            data = await HotelsRepository(session).delete(id=hotel_id)
+        except HTTPException as e:
+            status = "NOT OK"
+            data = e
+            await session.rollback()
         await session.commit()
 
-    return {"status": "OK", "data": hotel}
+    return {"status": status, "data": data}
 
 # Создание нового отеля
 @router.post("", summary="Создание нового отеля")
@@ -74,11 +81,18 @@ async def replace_hotel(
     hotel_id: int,
     hotel_data: Hotel
 ):
+    status = "OK"
+    data = None
     async with async_session_maker() as session:
-        hotel = await HotelsRepository(session).update(hotel_data, id=hotel_id)
+        try:
+            data = await HotelsRepository(session).update(hotel_data, id=hotel_id)
+        except HTTPException as e:
+            await session.rollback()
+            status = "NOT OK"
+            data = e
         await session.commit()
 
-    return {"status": "OK", "data": hotel}
+    return {"status": status, "data": data}
 
 # Изменение части объекта
 @router.patch("/{hotel_id}", summary="Частичное обновление данных")

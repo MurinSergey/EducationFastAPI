@@ -1,5 +1,7 @@
+from fastapi import HTTPException
 from pydantic import BaseModel
-from sqlalchemy import delete, insert, select, update
+from sqlalchemy import Result, delete, insert, select, update
+from sqlalchemy.exc import NoResultFound, MultipleResultsFound
 from src.database import engine
 
 
@@ -21,6 +23,15 @@ class BaseRepository:
             session (Any): Сессия базы данных.
         """
         self._session = session
+
+    @staticmethod        
+    def scalar_one(result: Result):
+        try:
+            return result.scalar_one()
+        except NoResultFound as e:
+            raise HTTPException(status_code=404, detail="Запись не найдена")
+        except MultipleResultsFound as e:
+            raise HTTPException(status_code=400, detail="Найдено более одной записи")
 
     async def get_all(self, *args, **kwargs):
         """
@@ -64,29 +75,36 @@ class BaseRepository:
     
     async def update(self, data: BaseModel, **filter_by) -> BaseModel:
         """
-        Обновляет данные в базе данных.
+        Обновляет запись в базе данных.
 
         Args:
-            data (BaseModel): Данные, которые нужно обновить.
-            **filter_by: Фильтры для поиска записи.
+            data (BaseModel): Данные для обновления.
+            **filter_by: Параметры фильтрации.
 
         Returns:
             BaseModel: Обновленная запись.
+
+        Raises:
+            HTTPException: Если запись не найдена или найдено более одной записи.
         """
         query = update(self._model).filter_by(**filter_by).values(**data.model_dump()).returning(self._model)
         result = await self._session.execute(query)
-        return result.scalar_one_or_none()
+        return BaseRepository.scalar_one(result)
     
     async def delete(self, **filter_by) -> BaseModel:
         """
-        Удаляет запись из базы данных, соответствующую заданным фильтрам.
+        Удаляет запись из базы данных, соответствующую заданным параметрам фильтрации.
 
         Args:
-            **filter_by: Ключевые слова, используемые для фильтрации записей.
+            **filter_by: Параметры фильтрации для удаления записи.
 
         Returns:
-            BaseModel: Удаленная запись или None, если запись не найдена.
+            BaseModel: Удаленная запись.
+
+        Raises:
+            HTTPException: Если запись не найдена или найдено более одной записи.
         """
         query = delete(self._model).filter_by(**filter_by).returning(self._model)
         result = await self._session.execute(query)
-        return result.scalar_one_or_none()
+        return BaseRepository.scalar_one(result)
+

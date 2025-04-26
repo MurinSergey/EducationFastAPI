@@ -87,6 +87,6 @@ class BaseRepository:
         Returns:
             BaseModel: Удаленная запись или None, если запись не найдена.
         """
-        qery = delete(self._model).filter_by(**filter_by).returning(self._model)
-        result = await self._session.execute(qery)
+        query = delete(self._model).filter_by(**filter_by).returning(self._model)
+        result = await self._session.execute(query)
         return result.scalar_one_or_none()

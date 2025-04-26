@@ -73,12 +73,13 @@ class BaseRepository:
         result = await self._session.execute(add_hotel_statement)
         return result.scalar_one_or_none()
     
-    async def replace(self, data: BaseModel, **filter_by) -> BaseModel:
+    async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by) -> BaseModel:
         """
         Обновляет запись в базе данных.
 
         Args:
             data (BaseModel): Данные для обновления.
+            exclude_unset (bool): Если True, не обновлять поля, которые не были изменены.
             **filter_by: Параметры фильтрации.
 
         Returns:
@@ -87,7 +88,11 @@ class BaseRepository:
         Raises:
             HTTPException: Если запись не найдена или найдено более одной записи.
         """
-        replace_hotel_statement = update(self._model).filter_by(**filter_by).values(**data.model_dump()).returning(self._model)
+        replace_hotel_statement = (
+            update(self._model)
+            .filter_by(**filter_by)
+            .values(**data.model_dump(exclude_unset=exclude_unset)).returning(self._model) # тут exclude_unset=True чтобы не обновлять поля которые не были изменены
+        )
         result = await self._session.execute(replace_hotel_statement)
         return BaseRepository.scalar_one(result)
     

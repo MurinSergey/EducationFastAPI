@@ -85,7 +85,7 @@ async def replace_hotel(
     data = None
     async with async_session_maker() as session:
         try:
-            data = await HotelsRepository(session).replace(hotel_data, id=hotel_id)
+            data = await HotelsRepository(session).edit(hotel_data, id=hotel_id)
         except HTTPException as e:
             await session.rollback()
             status = "NOT_OK"
@@ -96,16 +96,19 @@ async def replace_hotel(
 
 # Изменение части объекта
 @router.patch("/{hotel_id}", summary="Частичное обновление данных")
-def update_hotel(
+async def update_hotel(
     hotel_id: int,
     hotel_data: HotelPATCH
 ):
-    for hotel in hotels:
-        if hotel["id"] == hotel_id:
-            if hotel_data.title:
-                hotel["title"] = hotel_data.title
-            if hotel_data.name:
-                hotel["name"] = hotel_data.name
-            break
+    status = "OK"
+    data = None
+    async with async_session_maker() as session:
+        try:
+            data = await HotelsRepository(session).edit(hotel_data, exclude_unset=True, id=hotel_id)
+        except HTTPException as e:
+            await session.rollback()
+            status = "NOT_OK"
+            data = e
+        await session.commit()
 
-    return {"status": "OK"}
+    return {"status": status, "data": data}

@@ -27,15 +27,14 @@ async def get_hotels(
         
 # Удаление выбранного отеля
 @router.delete("/{hotel_id}", summary="Удаление отеля")
-def delete_hotel(
-    hotel_id: int,
-    # В метод delete можно добавлять параметры фильтрации
-    hotel_titel: str | None = Query(
-        description="Название отеля", default=None)
+async def delete_hotel(
+    hotel_id: int
 ):
-    global hotels
-    hotels = [hotel for hotel in hotels if hotel["id"] != hotel_id]
-    return {"status": "OK"}
+    async with async_session_maker() as session:
+        hotel = await HotelsRepository(session).delete(id=hotel_id)
+        await session.commit()
+
+    return {"status": "OK", "data": hotel}
 
 # Создание нового отеля
 @router.post("", summary="Создание нового отеля")

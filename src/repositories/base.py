@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from sqlalchemy import insert, select, update
+from sqlalchemy import delete, insert, select, update
 from src.database import engine
 
 
@@ -76,5 +76,17 @@ class BaseRepository:
         query = update(self._model).filter_by(**filter_by).values(**data.model_dump()).returning(self._model)
         result = await self._session.execute(query)
         return result.scalar_one_or_none()
-            
+    
+    async def delete(self, **filter_by) -> BaseModel:
+        """
+        Удаляет запись из базы данных, соответствующую заданным фильтрам.
 
+        Args:
+            **filter_by: Ключевые слова, используемые для фильтрации записей.
+
+        Returns:
+            BaseModel: Удаленная запись или None, если запись не найдена.
+        """
+        qery = delete(self._model).filter_by(**filter_by).returning(self._model)
+        result = await self._session.execute(qery)
+        return result.scalar_one_or_none()

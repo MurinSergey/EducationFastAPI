@@ -73,7 +73,7 @@ class BaseRepository:
         result = await self._session.execute(add_hotel_statement)
         return result.scalar_one_or_none()
     
-    async def update(self, data: BaseModel, **filter_by) -> BaseModel:
+    async def replace(self, data: BaseModel, **filter_by) -> BaseModel:
         """
         Обновляет запись в базе данных.
 
@@ -87,8 +87,8 @@ class BaseRepository:
         Raises:
             HTTPException: Если запись не найдена или найдено более одной записи.
         """
-        query = update(self._model).filter_by(**filter_by).values(**data.model_dump()).returning(self._model)
-        result = await self._session.execute(query)
+        replace_hotel_statement = update(self._model).filter_by(**filter_by).values(**data.model_dump()).returning(self._model)
+        result = await self._session.execute(replace_hotel_statement)
         return BaseRepository.scalar_one(result)
     
     async def delete(self, **filter_by) -> BaseModel:
@@ -104,7 +104,7 @@ class BaseRepository:
         Raises:
             HTTPException: Если запись не найдена или найдено более одной записи.
         """
-        query = delete(self._model).filter_by(**filter_by).returning(self._model)
-        result = await self._session.execute(query)
+        delete_hotel_statement = delete(self._model).filter_by(**filter_by).returning(self._model)
+        result = await self._session.execute(delete_hotel_statement)
         return BaseRepository.scalar_one(result)
 

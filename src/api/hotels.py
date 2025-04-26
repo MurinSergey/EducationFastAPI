@@ -34,7 +34,7 @@ async def delete_hotel(
         try:
             data = await HotelsRepository(session).delete(id=hotel_id)
         except HTTPException as e:
-            status = "NOT OK"
+            status = "NOT_OK"
             data = e
             await session.rollback()
         await session.commit()
@@ -85,10 +85,10 @@ async def replace_hotel(
     data = None
     async with async_session_maker() as session:
         try:
-            data = await HotelsRepository(session).update(hotel_data, id=hotel_id)
+            data = await HotelsRepository(session).replace(hotel_data, id=hotel_id)
         except HTTPException as e:
             await session.rollback()
-            status = "NOT OK"
+            status = "NOT_OK"
             data = e
         await session.commit()
 

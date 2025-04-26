@@ -1,9 +1,7 @@
 from fastapi import Body, Query, APIRouter
-from sqlalchemy import func, insert, select
 from src.repositories.hotels import HotelsRepository
-from src.models.hotels import HotelsOrm
 from src.api.dependencies import PaginationDep
-from src.database import async_session_maker, engine
+from src.database import async_session_maker 
 from schemas.hotel import Hotel, HotelPATCH
 
 # Создаем роутер

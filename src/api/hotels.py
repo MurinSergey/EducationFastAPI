@@ -23,6 +23,11 @@ async def get_hotels(
             offset=(pagination.page - 1) * per_page
         )
         
+@router.get("/{hotel_id}", summary="Выбор отеля")
+async def get_hotel(hotel_id: int):
+    async with async_session_maker() as session:
+        return await HotelsRepository(session).get_one_or_none(id=hotel_id)
+
 # Удаление выбранного отеля
 @router.delete("/{hotel_id}", summary="Удаление отеля")
 async def delete_hotel(

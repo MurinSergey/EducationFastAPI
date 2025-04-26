@@ -1,4 +1,5 @@
-from sqlalchemy import insert, select
+from pydantic import BaseModel
+from sqlalchemy import insert, select, update
 from src.database import engine
 
 
@@ -45,19 +46,35 @@ class BaseRepository:
         query = select(self._model).filter_by(**filter_by)
         result = await self._session.execute(query)
         return result.scalar_one_or_none()
-    
-    async def add(self, data):
-        """
-        Добавление новой записи в таблицу.
 
-        Аргументы:
-            data (dict): Данные для добавления записи.
-
-        Возвращает:
-            Any: Добавленная запись.
+    async def add(self, data: BaseModel):
         """
-        add_hotel_statement = insert(self._model).values(**data).returning(self._model)
+        Добавляет данные в базу данных.
+
+        Args:
+            data (BaseModel): Данные, которые нужно добавить.
+
+        Returns:
+            scalar_one_or_none: Результат выполнения запроса.
+        """
+        add_hotel_statement = insert(self._model).values(**data.model_dump()).returning(self._model)
         # print(add_hotel_statement.compile(bind=engine, compile_kwargs={"literal_binds": True}))
         result = await self._session.execute(add_hotel_statement)
         return result.scalar_one_or_none()
+    
+    async def update(self, data: BaseModel, **filter_by) -> BaseModel:
+        """
+        Обновляет данные в базе данных.
+
+        Args:
+            data (BaseModel): Данные, которые нужно обновить.
+            **filter_by: Фильтры для поиска записи.
+
+        Returns:
+            BaseModel: Обновленная запись.
+        """
+        query = update(self._model).filter_by(**filter_by).values(**data.model_dump()).returning(self._model)
+        result = await self._session.execute(query)
+        return result.scalar_one_or_none()
+            
 

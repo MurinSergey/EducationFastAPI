@@ -25,7 +25,6 @@ async def get_hotels(
             offset=(pagination.page - 1) * per_page
         )
         
-
 # Удаление выбранного отеля
 @router.delete("/{hotel_id}", summary="Удаление отеля")
 def delete_hotel(
@@ -67,25 +66,22 @@ async def create_hotel(
 ):
 
     async with async_session_maker() as session:
-        hotel = await HotelsRepository(session).add(hotel_data.model_dump())
+        hotel = await HotelsRepository(session).add(hotel_data)
         await session.commit()
 
     return {"status": "OK", "data": hotel}
 
 # Изменение всего объекта
 @router.put("/{hotel_id}", summary="Полное обновление данных")
-def replace_hotel(
+async def replace_hotel(
     hotel_id: int,
     hotel_data: Hotel
 ):
+    async with async_session_maker() as session:
+        hotel = await HotelsRepository(session).update(hotel_data, id=hotel_id)
+        await session.commit()
 
-    for hotel in hotels:
-        if hotel["id"] == hotel_id:
-            hotel["title"] = hotel_data.title
-            hotel["name"] = hotel_data.name
-            break
-
-    return {"status": "OK"}
+    return {"status": "OK", "data": hotel}
 
 # Изменение части объекта
 @router.patch("/{hotel_id}", summary="Частичное обновление данных")

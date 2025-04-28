@@ -1,4 +1,5 @@
 from sqlalchemy import func, select
+from src.schemas.hotel import Hotel
 from src.models.hotels import HotelsOrm
 from src.repositories.base import BaseRepository
 
@@ -12,6 +13,7 @@ class HotelsRepository(BaseRepository):
     """
 
     _model = HotelsOrm
+    _schema = Hotel
 
     # Метод получения всех отелей с параметрами поиска
     async def get_all(
@@ -20,7 +22,7 @@ class HotelsRepository(BaseRepository):
             location: str, 
             limit: int, 
             offset: int
-    ):
+    ) -> list[Hotel]:
         """
         Получает список отелей по заданным параметрам.
 
@@ -43,6 +45,4 @@ class HotelsRepository(BaseRepository):
             .offset(offset)
         )
         result = await self._session.execute(query)
-        hotels = result.scalars().all()
-        # print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
-        return hotels
+        return [self._schema.model_validate(model, from_attributes=True) for model in result.scalars().all()]

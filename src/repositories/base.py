@@ -14,6 +14,7 @@ class BaseRepository:
     """
 
     _model = None
+    _schema: BaseModel = None
 
     def __init__(self, session):
         """
@@ -26,6 +27,18 @@ class BaseRepository:
 
     @staticmethod        
     def scalar_one(result: Result):
+        """
+        Возвращает скалярное значение из результата запроса.
+
+        Аргументы:
+            result (Any): Результат запроса.
+
+        Возвращает:
+            Any: Скалярное значение из результата запроса.
+
+        Исключения:
+            HTTPException: Если запись не найдена или найдено более одной записи.
+        """
         try:
             return result.scalar_one()
         except NoResultFound as e:
@@ -33,7 +46,7 @@ class BaseRepository:
         except MultipleResultsFound as e:
             raise HTTPException(status_code=400, detail="Найдено более одной записи")
 
-    async def get_all(self, *args, **kwargs):
+    async def get_all(self, *args, **kwargs) -> list[BaseModel]:
         """
         Получение всех записей из таблицы.
 
@@ -42,23 +55,24 @@ class BaseRepository:
         """
         query = select(self._model)
         result = await self._session.execute(query)
-        return result.scalars().all()
+        return [self._schema.model_validate(model, from_attributes=True) for model in result.scalars().all()]
 
-    async def get_one_or_none(self, **filter_by):
+    async def get_one(self, **filter_by) -> BaseModel:
         """
-        Получение одной записи из таблицы по фильтрам.
+        Получает один объект из базы данных, соответствующий заданным фильтрам.
 
-        Аргументы:
-            **filter_by: Фильтры для поиска записи.
+        Args:
+            **filter_by: Ключевые слова для фильтрации объектов.
 
-        Возвращает:
-            Any: Запись, удовлетворяющая фильтрам, или None, если запись не найдена.
+        Returns:
+            BaseModel: Найденный объект или None, если объект не найден.
         """
         query = select(self._model).filter_by(**filter_by)
         result = await self._session.execute(query)
-        return result.scalar_one_or_none()
+        model = BaseRepository.scalar_one(result)
+        return self._schema.model_validate(model, from_attributes=True)
 
-    async def add(self, data: BaseModel):
+    async def add(self, data: BaseModel) -> BaseModel:
         """
         Добавляет данные в базу данных.
 
@@ -66,12 +80,14 @@ class BaseRepository:
             data (BaseModel): Данные, которые нужно добавить.
 
         Returns:
-            scalar_one_or_none: Результат выполнения запроса.
+            BaseModel: Добавленные данные.
         """
         add_hotel_statement = insert(self._model).values(**data.model_dump()).returning(self._model)
         # print(add_hotel_statement.compile(bind=engine, compile_kwargs={"literal_binds": True}))
         result = await self._session.execute(add_hotel_statement)
-        return result.scalar_one_or_none()
+        model =  BaseRepository.scalar_one(result)
+        return self._schema.model_validate(model, from_attributes=True)
+
     
     async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by) -> BaseModel:
         """
@@ -94,7 +110,8 @@ class BaseRepository:
             .values(**data.model_dump(exclude_unset=exclude_unset)).returning(self._model) # тут exclude_unset=True чтобы не обновлять поля которые не были изменены
         )
         result = await self._session.execute(replace_hotel_statement)
-        return BaseRepository.scalar_one(result)
+        model = BaseRepository.scalar_one(result)
+        return self._schema.model_validate(model, from_attributes=True)
     
     async def delete(self, **filter_by) -> BaseModel:
         """
@@ -111,5 +128,6 @@ class BaseRepository:
         """
         delete_hotel_statement = delete(self._model).filter_by(**filter_by).returning(self._model)
         result = await self._session.execute(delete_hotel_statement)
-        return BaseRepository.scalar_one(result)
+        model = BaseRepository.scalar_one(result)
+        return self._schema.model_validate(model, from_attributes=True)
 

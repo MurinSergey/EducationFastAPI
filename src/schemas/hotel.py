@@ -1,16 +1,30 @@
 from pydantic import BaseModel, Field
 
 
-class Hotel(BaseModel):
+
+class HotelAdd(BaseModel):
     """
-    Класс Hotel представляет отель.
+    Класс HotelAdd представляет данные для добавления нового отеля.
 
     Атрибуты:
     title (str): Название отеля.
-    location (str): Имя отеля.
+    location (str): Адрес отеля.
     """
+
     title: str = Field(description="Название отеля")
     location: str = Field(description="Адрес отеля")
+
+class Hotel(HotelAdd):
+    """
+    Класс Hotel представляет информацию об отеле.
+
+    Атрибуты:
+    id (int): Идентификатор отеля.
+    title (str): Название отеля.
+    location (str): Адрес отеля.
+    """
+    id: int = Field(description="Идентификатор отеля")
+
 
 class HotelPATCH(BaseModel):
     """

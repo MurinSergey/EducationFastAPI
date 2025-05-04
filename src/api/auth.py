@@ -1,7 +1,12 @@
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, HTTPException
+from passlib.context import CryptContext
+
 from src.schemas.user import User, UserDatabaseAdd, UserRequestAdd
 from src.database import async_session_maker 
 from src.repositories.users import UsersRepository
+
+# Инициализация контекста хэширования паролей
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Роутер для регистрации и авторизации пользователя
 router = APIRouter(prefix="/auth", tags=["Аутентификация и авторизация"])
@@ -28,10 +33,10 @@ async def register(
         }
     })
 ):
-    hash_password = user.password + "hash_bla_bla_bla"
-    new_user = UserDatabaseAdd(email=user.email, hash_password=hash_password, nickname=user.nickname)
+    _hash_password = pwd_context.hash(user.password)
+    new_user = UserDatabaseAdd(email=user.email, hash_password=_hash_password, nickname=user.nickname)
     async with async_session_maker() as session:
-        user: User = await UsersRepository(session).add(new_user)
+        data: User = await UsersRepository(session).add(new_user)
         await session.commit()
     
-    return {"status": "OK", "data": user}
+    return {"status": "OK", "data": data}

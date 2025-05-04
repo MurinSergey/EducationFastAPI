@@ -1,6 +1,6 @@
 
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class UserBase(BaseModel):
@@ -11,7 +11,7 @@ class UserBase(BaseModel):
         email (str): Электронная почта пользователя.
         nickname (str): Никнейм пользователя.
     """
-    email: str
+    email: EmailStr
     nickname: str
 
 class UserRequestAdd(UserBase):

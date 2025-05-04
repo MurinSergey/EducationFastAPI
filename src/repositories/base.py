@@ -1,7 +1,7 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy import Result, delete, insert, select, update
-from sqlalchemy.exc import NoResultFound, MultipleResultsFound
+from sqlalchemy.exc import NoResultFound, MultipleResultsFound, IntegrityError
 from src.database import engine
 
 
@@ -42,9 +42,9 @@ class BaseRepository:
         try:
             return result.scalar_one()
         except NoResultFound as e:
-            raise HTTPException(status_code=404, detail="Запись не найдена")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Запись не найдена")
         except MultipleResultsFound as e:
-            raise HTTPException(status_code=400, detail="Найдено более одной записи")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Найдено более одной записи")
 
     async def get_all(self, *args, **kwargs) -> list[BaseModel]:
         """

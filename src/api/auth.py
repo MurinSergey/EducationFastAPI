@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Body
-from src.schemas.user import UserDatabaseAdd, UserRequestAdd
+from src.schemas.user import User, UserDatabaseAdd, UserRequestAdd
 from src.database import async_session_maker 
 from src.repositories.users import UsersRepository
 
@@ -31,7 +31,7 @@ async def register(
     hash_password = user.password + "hash_bla_bla_bla"
     new_user = UserDatabaseAdd(email=user.email, hash_password=hash_password, nickname=user.nickname)
     async with async_session_maker() as session:
-        await UsersRepository(session).add(new_user)
+        user: User = await UsersRepository(session).add(new_user)
         await session.commit()
     
-    return {"status": "OK"}
+    return {"status": "OK", "data": user}

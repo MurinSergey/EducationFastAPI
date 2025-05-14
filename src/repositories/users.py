@@ -37,7 +37,10 @@ class UsersRepository(BaseRepository):
         """
         query = select(self._model).filter_by(email=user.email)
         result = await self._session.execute(query)
-        model = BaseRepository.scalar_one(result)
+        model = result.scalar_one_or_none()
+        if not model:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Ошибка аутентификации")
+        
         auth_user = UserWithHashPassword.model_validate(model, from_attributes=True)
         if not check_password(user.password, auth_user.hash_password):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Ошибка аутентификации")

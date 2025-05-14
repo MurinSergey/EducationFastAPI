@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, Response
+from fastapi import APIRouter, Body, Request, Response
 
 from src.services.auth import AuthService
 from src.schemas.user import User, UserWithHashPassword, UserWithPassword, UserLogin
@@ -64,4 +64,15 @@ async def login(
         user: User = await AuthService().login_user(session, data)
         access_token = AuthService().create_access_token({"user_id": user.id})
         response.set_cookie(key="access_token", value=access_token)
+    return {"status": "OK", "data": {"access_token": access_token}}
+
+# Тестовый путь для проверки авторизации
+@router.get("/only_auth")
+async def auth_only(
+    request: Request,
+):
+    access_token = None
+    if "access_token" in request.cookies:
+        access_token = request.cookies["access_token"]
+        
     return {"status": "OK", "data": {"access_token": access_token}}

@@ -71,8 +71,6 @@ async def login(
 async def auth_only(
     request: Request,
 ):
-    access_token = None
-    if "access_token" in request.cookies:
-        access_token = request.cookies["access_token"]
-        
+    access_token = request.cookies.get("access_token")
+
     return {"status": "OK", "data": {"access_token": access_token}}

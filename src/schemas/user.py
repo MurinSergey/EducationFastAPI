@@ -14,25 +14,6 @@ class UserBase(BaseModel):
     email: EmailStr
     nickname: str
 
-class UserRequestAdd(UserBase):
-    """
-    Класс для добавления пользователя.
-
-    Атрибуты:
-        password (str): Пароль пользователя.
-    """
-    password: str
-
-class UserDatabaseAdd(UserBase):
-    """
-    Класс для добавления пользователя в базу данных.
-
-    Атрибуты:
-        hashed_password (str): Хэшированный пароль пользователя.
-    """
-    hash_password: str
-
-
 class User(UserBase):
     """
     Класс для представления пользователя.
@@ -41,3 +22,32 @@ class User(UserBase):
         id (int): Идентификатор пользователя.
     """
     id: int
+
+class UserWithPassword(UserBase):
+    """
+    Класс пользователя с паролем
+
+    Атрибуты:
+        password (str): Пароль пользователя.
+    """
+    password: str
+
+class UserWithHashPassword(UserBase):
+    """
+    Класс пользователя с хешированным паролем
+
+    Атрибуты:
+        hashed_password (str): Хэшированный пароль пользователя.
+    """
+    hash_password: str
+
+class UserLogin(BaseModel):
+    """
+    Модель для входа пользователя.
+
+    Attributes:
+        email (EmailStr): Электронная почта пользователя.
+        password (str): Пароль пользователя.
+    """
+    email: EmailStr
+    password: str

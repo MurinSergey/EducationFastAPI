@@ -9,6 +9,10 @@ class Settings(BaseSettings):
     DB_PASS: str  # Пароль пользователя базы данных
     DB_NAME: str  # Название базы данных
 
+    AUTH_SECRET_KEY: str # Секретный ключ для JWT токена авторизации
+    AUTH_ALGORITHM: str # Алгоритм шифрования JWT токена авторизации
+    AUTH_ACCESS_TOKEN_EXPIRE_MINUTES: int # Срок действия JWT токена авторизации
+
     # Свойство, которое возвращает строку подключения к базе данных
     @property # Декоратор @property позволяет обращаться к этому методу как к атрибуту класса
     def DATABASE_URL(self) -> str:
